@@ -6,10 +6,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- 追加 -->
   <title>ESP32 LED ON/OFF Control (Authenticated)</title>
 
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebases</script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebasepat.js</script>
-  https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js</script>
+  <!-- Firebase Core SDK (compat) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <!-- Firebase Database SDK (compat) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <!-- ★Firebase Authentication SDK (compat) を追加★ -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 
   <!-- スタイル追加 -->
   <style>
@@ -65,7 +67,6 @@
   <button onclick="setLED(true)">LED ON</button>
   <button onclick="setLED(false)">LED OFF</button>
   <p>現在のLED状態: <span id="led-state">?</span></p>
-
 
   <script>
     // ★ご自身のFirebaseプロジェクトの設定情報に置き換えてください★
