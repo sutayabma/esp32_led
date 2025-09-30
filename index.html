@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>ESP32 LED ON/OFF Control (Authenticated)</title>
+  <!-- Firebase Core SDK (compat) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <!-- Firebase Database SDK (compat) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <!-- ★Firebase Authentication SDK (compat) を追加★ -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+</head>
+<body>
+  <h1>LED制御</h1>
+  <p>ユーザー認証状態: <span id="user-status">未ログイン</span></p> <!-- ログイン状態を表示する場所 -->
+  <button onclick="setLED(true)">LED ON</button>
+  <button onclick="setLED(false)">LED OFF</button>
+  <p>現在のLED状態: <span id="led-state">?</span></p>
+
+  <script>
+    // ★ご自身のFirebaseプロジェクトの設定情報に置き換えてください★
+    const firebaseConfig = {
+      apiKey: "AIzaSyBfg5A_tWyhhy0s3v_4O1kGEIx2j46c8uQ", // あなたのAPIキー
+      authDomain: "esp32led-9546e.firebaseapp.com",
+      databaseURL: "https://esp32led-9546e-default-rtdb.firebaseio.com",
+      projectId: "esp32led-9546e",
+      storageBucket: "esp32led-9546e.firebasestorage.app",
+      messagingSenderId: "763630628227",
+      appId: "1:763630628227:web:6e50d97183011066941ab6",
+      measurementId: "G-PN5MSY9TZM"
+    };
+
+    // Firebaseの初期化
+    const app = firebase.initializeApp(firebaseConfig);
+    // Firebase Authenticationサービスを取得
+    const auth = app.auth();
+    // Realtime Databaseサービスを取得し、参照を作成
+    const dbRef = app.database().ref("ESP32/LED_ON_OFF");
+
+    let isUserLoggedIn = false; // ログイン状態を追跡するためのフラグ
+
+    // ★Firebase Authenticationの認証状態の変更を監視★
+    auth.onAuthStateChanged(user => {
+      const userStatusElement = document.getElementById('user-status');
+      if (user) {
+        // ユーザーがログインしている場合
+        isUserLoggedIn = true;
+        userStatusElement.textContent = `ログイン中 (UID: ${user.uid})`;
+        console.log("ユーザーはログインしています:", user.uid);
+        // ここでデータの購読を開始することもできます（すでにdbRef.onで設定済みですが）
+        // dbRef.on('value', ...);
+      } else {
+        // ユーザーがログインしていない場合、匿名認証でログインを試みる
+        isUserLoggedIn = false;
+        userStatusElement.textContent = "匿名認証でログインを試行中...";
+        console.log("ユーザーがログインしていません。匿名認証でログインを試みます。");
+
+        auth.signInAnonymously()
+          .then(() => {
+            // 匿名認証に成功した場合、onAuthStateChanged が再度呼び出される
+            console.log("匿名でログインしました。");
+          })
+          .catch((error) => {
+            // 匿名認証に失敗した場合
+            userStatusElement.textContent = `ログイン失敗: ${error.message}`;
+            console.error("匿名ログインに失敗しました:", error);
+            alert("ログインに失敗しました。Realtime Databaseにアクセスできません。");
+          });
+      }
+    });
+
+    // LEDの状態をセットする関数
+    function setLED(state) {
+      if (isUserLoggedIn) {
+        // ユーザーがログイン済みであれば、データ書き込みを実行
+        dbRef.set(state)
+          .then(() => console.log("LED状態を更新しました:", state))
+          .catch(error => {
+            console.error("LED状態の更新に失敗しました:", error);
+            alert(`LED状態の更新に失敗しました: ${error.message}`);
+          });
+      } else {
+        // ユーザーがログインしていなければ、操作を拒否
+        console.warn("ユーザーがログインしていません。LEDを操作できません。");
+        alert("LEDを操作するにはログインが必要です。しばらく待つか、ページをリロードしてください。");
+      }
+    }
+
+    // LEDの状態をリアルタイムに表示
+    // ログイン状態に関わらずデータの購読を試みますが、
+    // Realtime Databaseのルールによってアクセスが拒否される可能性があります。
+    // 認証が完了してからこのリスナーを登録する方がより確実ですが、
+    // onAuthStateChanged 内で再購読する設計も可能です。
+    // 今回はシンプルにするため、そのまま残します。
+    dbRef.on('value', (snapshot) => {
+      // スナップショットの存在と値を確認
+      if (snapshot.exists()) {
+        const ledState = snapshot.val();
+        document.getElementById('led-state').textContent = (ledState === true) ? "ON" : ((ledState === false) ? "OFF" : String(ledState));
+        console.log("現在のLED状態:", ledState);
+      } else {
+        document.getElementById('led-state').textContent = "データなし";
+        console.log("データが存在しません。");
+      }
+    }, (error) => {
+      // アクセス拒否などのエラーハンドリング
+      console.error("Realtime Databaseからのデータ読み取りに失敗しました:", error);
+      document.getElementById('led-state').textContent = `エラー: ${error.message}`;
+    });
+  </script>
+</body>
+</html>
