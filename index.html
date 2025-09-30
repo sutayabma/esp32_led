@@ -67,6 +67,8 @@
   <button onclick="setLED(true)">LED ON</button>
   <button onclick="setLED(false)">LED OFF</button>
   <p>現在のLED状態: <span id="led-state">?</span></p>
+  <p>WIFI情報:<span id="wifi-info">読み込み中...</span></p>
+
 
   <script>
     // ★ご自身のFirebaseプロジェクトの設定情報に置き換えてください★
@@ -87,6 +89,7 @@
     const auth = app.auth();
     // Realtime Databaseサービスを取得し、参照を作成
     const dbRef = app.database().ref("ESP32/LED_ON_OFF");
+    const wifiRef = app.database().ref("ESP32/WIFI");
 
     let isUserLoggedIn = false; // ログイン状態を追跡するためのフラグ
 
@@ -158,6 +161,22 @@
       console.error("Realtime Databaseからのデータ読み取りに失敗しました:", error);
       document.getElementById('led-state').textContent = `エラー: ${error.message}`;
     });
+
+
+    
+wifiRef.on('value', (snapshot) => {
+    if (snapshot.exists()) {
+      const wifiData = snapshot.val();
+      console.log("WIFIデータ:", wifiData);
+      document.getElementById('wifi-info').textContent = JSON.stringify(wifiData, null, 2);
+    } else {
+      document.getElementById('wifi-info').textContent = "データなし";
+    }
+  }, (error) => {
+    console.error("WIFIデータの取得に失敗:", error);
+    document.getElementById('wifi-info').textContent = `エラー: ${error.message}`;
+  });
+
   </script>
 </body>
 </html>
