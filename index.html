@@ -1,22 +1,71 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- 追加 -->
   <title>ESP32 LED ON/OFF Control (Authenticated)</title>
-  <!-- Firebase Core SDK (compat) -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <!-- Firebase Database SDK (compat) -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-  <!-- ★Firebase Authentication SDK (compat) を追加★ -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebases</script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebasepat.js</script>
+  https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js</script>
+
+  <!-- スタイル追加 -->
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 20px;
+      margin: 0;
+      background-color: #f9f9f9;
+    }
+
+    h1 {
+      font-size: 1.5em;
+      margin-bottom: 10px;
+    }
+
+    button {
+      font-size: 1.2em;
+      padding: 10px 20px;
+      margin: 10px;
+      border: none;
+      border-radius: 8px;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    p {
+      font-size: 1.1em;
+      margin: 10px 0;
+    }
+
+    #led-state {
+      font-weight: bold;
+      color: green;
+    }
+
+    @media (max-width: 600px) {
+      button {
+        width: 80%;
+        font-size: 1em;
+      }
+    }
+  </style>
 </head>
 <body>
   <h1>LED制御</h1>
-  <p>ユーザー認証状態: <span id="user-status">未ログイン</span></p> <!-- ログイン状態を表示する場所 -->
+  <p>ユーザー認証状態: <span id="user-status">未ログイン</span></p>
   <button onclick="setLED(true)">LED ON</button>
   <button onclick="setLED(false)">LED OFF</button>
   <p>現在のLED状態: <span id="led-state">?</span></p>
+
 
   <script>
     // ★ご自身のFirebaseプロジェクトの設定情報に置き換えてください★
@@ -111,4 +160,3 @@
   </script>
 </body>
 </html>
-
