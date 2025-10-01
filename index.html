@@ -178,22 +178,29 @@
 
 
     let lastWifiData = null;
+    let firsttime = true;
 
     function updateWifiStatus(currentData) {
       const wifiInfoSpan = document.getElementById('wifi-info');
 
-      if (JSON.stringify(currentData) !== JSON.stringify(lastWifiData)) {
+      if (firsttime == false){
+        if (JSON.stringify(currentData) !== JSON.stringify(lastWifiData)) {
+          lastWifiData = currentData;
+          wifiInfoSpan.textContent = `接続中`;
+          wifiInfoSpan.style.color = 'green';
+        } else {
+          wifiInfoSpan.textContent = `未接続`;
+          wifiInfoSpan.style.color = 'red';
+        }
+      }else{
         lastWifiData = currentData;
-        wifiInfoSpan.textContent = `接続中`;
-        wifiInfoSpan.style.color = 'green';
-      } else {
-        wifiInfoSpan.textContent = `未接続`;
-        wifiInfoSpan.style.color = 'red';
+        wifiInfoSpan.textContent = `読み込み中...`;
+        firsttime = false;
       }
     }
-
     
-    // 5秒ごとにWi-Fiデータを取得して比較
+    
+    // 3秒ごとにWi-Fiデータを取得して比較
     setInterval(() => {
       wifiRef.once('value')
         .then(snapshot => {
@@ -209,10 +216,7 @@
           console.error("WIFIデータの取得に失敗:", error);
           document.getElementById('wifi-info').textContent = `エラー: ${error.message}`;
         });
-    }, 5000); // 5秒ごとに実行
-
-
-
+    }, 3000); // 3秒ごとに実行
 
   </script>
 </body>
