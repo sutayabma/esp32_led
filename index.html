@@ -186,18 +186,38 @@
 
     let lastWifiData = null;
     let firsttime = true;
+    let lastcondition = false;
 
     function updateWifiStatus(currentData) {
       const wifiInfoSpan = document.getElementById('wifi-info');
+      const ledStateElement = document.getElementById('led-state');
 
       if (firsttime == false){
         if (JSON.stringify(currentData) !== JSON.stringify(lastWifiData)) {
           lastWifiData = currentData;
           wifiInfoSpan.textContent = `接続中`;
           wifiInfoSpan.style.color = 'green';
+          if(lastcondition == false){ //初回接続はLED状態取得
+            let ans = false;
+            dbRef.once('value')
+              .then((snapshot) => {
+              const ans = snapshot.val(); // ← ここでデータを取得
+              if(ans){
+                ledStateElement.textContent = "ON";
+                ledStateElement.style.color = "green";
+              }else{
+                ledStateElement.textContent = "OFF";
+                ledStateElement.style.color = "red"; // OFFは赤色
+              }
+            })
+          }
+          lastcondition=true;
         } else {
           wifiInfoSpan.textContent = `未接続`;
           wifiInfoSpan.style.color = 'red';
+          ledStateElement.textContent = "---";
+          ledStateElement.style.color = "black"; // その他は黒
+          lastcondition=false;
         }
       }else{
         lastWifiData = currentData;
